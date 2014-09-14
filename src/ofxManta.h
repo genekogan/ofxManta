@@ -4,13 +4,16 @@
 #include "Manta.h"
 
 
+//------
 class ofxMantaEvent : public ofEventArgs {
 public:
     int row, col, id, value;
     ofxMantaEvent(int row, int col, int id, int value);
 };
 
-class ofxManta : public Manta
+
+//------
+class ofxManta : public Manta, public ofThread
 {
 public:
     ~ofxManta();
@@ -18,10 +21,12 @@ public:
     void draw(int x, int y, int w = 400);
     void close();
     
+    /* get current state */
     float getPad(int row, int column);
     float getSlider(int index);
     float getButton(int index);
 
+    /* add event listeners */
     template <typename L, typename M>
     void addPadListener(L *listener, M method) {
         ofAddListener(padEvent, listener, method);
@@ -43,22 +48,33 @@ public:
         ofAddListener(buttonVelocityEvent, listener, method);
     }
     
-private:
+protected:
 
+    /* update process */
     void update(ofEventArgs &data);
+    void threadedFunction();
+    void sendEventNotifications();
 
+    /* get events from Manta */
     void PadEvent(int row, int column, int id, int value);
     void SliderEvent(int id, int value);
     void ButtonEvent(int id, int value);
     void PadVelocityEvent(int row, int column, int id, int value);
     void ButtonVelocityEvent(int id, int value);
 
+    /* ofEvent notifiers */
     ofEvent<ofxMantaEvent> padEvent;
     ofEvent<ofxMantaEvent> sliderEvent;
     ofEvent<ofxMantaEvent> buttonEvent;
     ofEvent<ofxMantaEvent> padVelocityEvent;
     ofEvent<ofxMantaEvent> buttonVelocityEvent;
-
+    
+    vector<ofxMantaEvent *> padEvents;
+    vector<ofxMantaEvent *> sliderEvents;
+    vector<ofxMantaEvent *> buttonEvents;
+    vector<ofxMantaEvent *> padVelocityEvents;
+    vector<ofxMantaEvent *> buttonVelocityEvents;
+    
     float pad[6][8];
     float slider[2];
     float button[4];

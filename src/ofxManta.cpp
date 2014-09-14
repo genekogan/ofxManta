@@ -12,17 +12,19 @@ ofxMantaEvent::ofxMantaEvent(int row, int col, int id, int value) {
 void ofxManta::setup() {
     Connect();
     ofAddListener(ofEvents().update, this, &ofxManta::update);
+    startThread();
 }
 
 //--------
 void ofxManta::close() {
+    stopThread();
     ofRemoveListener(ofEvents().update, this, &ofxManta::update);
     Disconnect();
 }
 
 //--------
 void ofxManta::update(ofEventArgs &data) {
-    HandleEvents();
+    sendEventNotifications();
 }
 
 //--------
@@ -123,39 +125,88 @@ void ofxManta::draw(int x, int y, int w) {
 }
 
 //--------
+void ofxManta::threadedFunction() {
+    while(isThreadRunning()) {
+        if(lock()) {
+            HandleEvents();
+            unlock();
+        }
+        else {
+            ofLogWarning("threadedFunction()") << "Unable to lock mutex.";
+        }
+    }
+}
+
+//--------
+void ofxManta::sendEventNotifications() {
+    if(lock()) {
+        for (int i=0; i<padEvents.size(); i++) {
+            ofNotifyEvent(padEvent, *padEvents[i], this);
+            delete padEvents[i];
+        }
+        for (int i=0; i<sliderEvents.size(); i++) {
+            ofNotifyEvent(sliderEvent, *sliderEvents[i], this);
+            delete sliderEvents[i];
+        }
+        for (int i=0; i<buttonEvents.size(); i++) {
+            ofNotifyEvent(buttonEvent, *buttonEvents[i], this);
+            delete buttonEvents[i];
+        }
+        for (int i=0; i<padVelocityEvents.size(); i++) {
+            ofNotifyEvent(padVelocityEvent, *padVelocityEvents[i], this);
+            delete padVelocityEvents[i];
+        }
+        for (int i=0; i<buttonVelocityEvents.size(); i++) {
+            ofNotifyEvent(buttonVelocityEvent, *buttonVelocityEvents[i], this);
+            delete buttonVelocityEvents[i];
+        }
+        
+        padEvents.clear();
+        sliderEvents.clear();
+        buttonEvents.clear();
+        padVelocityEvents.clear();
+        buttonVelocityEvents.clear();
+        
+        unlock();
+    }
+    else {
+        ofLogWarning("threadedFunction()") << "Unable to lock mutex.";
+    }
+}
+
+//--------
 void ofxManta::PadEvent(int row, int column, int id, int value) {
-    //cout << "Pad event: " << ofGetElapsedTimeMicros() << ", id " << id << ", row "<< row <<", column "<< column << ", value "<< value << endl;
-    ofxMantaEvent padEventArgs(row, column, id, value);
-    ofNotifyEvent(padEvent, padEventArgs, this);
+    ofxMantaEvent *padEventArgs = new ofxMantaEvent(row, column, id, value);
+    padEvents.push_back(padEventArgs);
     pad[row][column] = value;
 }
 
 //--------
 void ofxManta::SliderEvent(int id, int value) {
     if (value == 65535) value = -1;
-    ofxMantaEvent padEventArgs(NULL, NULL, id, value);
-    ofNotifyEvent(sliderEvent, padEventArgs, this);
+    ofxMantaEvent *sliderEventArgs = new ofxMantaEvent(NULL, NULL, id, value);
+    sliderEvents.push_back(sliderEventArgs);
     if (value == -1) return;
     slider[id] = ofClamp(value/4090.0, 0.0, 1.0);
 }
 
 //--------
 void ofxManta::ButtonEvent(int id, int value) {
-    ofxMantaEvent padEventArgs(NULL, NULL, id, value);
-    ofNotifyEvent(buttonEvent, padEventArgs, this);
+    ofxMantaEvent *buttonEventArgs = new ofxMantaEvent(NULL, NULL, id, value);
+    buttonEvents.push_back(buttonEventArgs);
     button[id] = ofClamp(value / 254.0, 0.0, 1.0);
 }
 
 //--------
 void ofxManta::PadVelocityEvent(int row, int column, int id, int value) {
-    ofxMantaEvent padEventArgs(row, column, id, value);
-    ofNotifyEvent(padVelocityEvent, padEventArgs, this);
+    ofxMantaEvent *padVelocityEventArgs = new ofxMantaEvent(row, column, id, value);
+    padVelocityEvents.push_back(padVelocityEventArgs);
 }
 
 //--------
 void ofxManta::ButtonVelocityEvent(int id, int value) {
-    ofxMantaEvent padEventArgs(NULL, NULL, id, value);
-    ofNotifyEvent(buttonVelocityEvent, padEventArgs, this);
+    ofxMantaEvent *buttonVelocityEventArgs = new ofxMantaEvent(NULL, NULL, id, value);
+    buttonVelocityEvents.push_back(buttonVelocityEventArgs);
 }
 
 //--------
