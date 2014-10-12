@@ -17,14 +17,18 @@ class ofxManta : public Manta, public ofThread
 {
 public:
     ~ofxManta();
-    void setup();
+    bool setup();
     void draw(int x, int y, int w = 400);
     void close();
+    bool getConnected() {return connected;}
     
     /* get current state */
-    float getPad(int row, int column);
-    float getSlider(int index);
-    float getButton(int index);
+    float getPad(int row, int column) {return pad[row][column];}
+    float getSlider(int index) {return slider[index];}
+    float getButton(int index) {return button[index];}
+    float * getPadRef(int row, int column) {return &pad[row][column];}
+    float * getSliderRef(int index) {return &slider[index];}
+    float * getButtonRef(int index) {return &button[index];}
 
     /* add event listeners */
     template <typename L, typename M>
@@ -78,5 +82,7 @@ protected:
     float pad[6][8];
     float slider[2];
     float button[4];
+    
+    bool connected;
 };
 

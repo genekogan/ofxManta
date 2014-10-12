@@ -9,37 +9,32 @@ ofxMantaEvent::ofxMantaEvent(int row, int col, int id, int value) {
 }
 
 //--------
-void ofxManta::setup() {
-    Connect();
-    ofAddListener(ofEvents().update, this, &ofxManta::update);
-    startThread();
+bool ofxManta::setup() {
+    try {
+        Connect();
+        ofAddListener(ofEvents().update, this, &ofxManta::update);
+        startThread();
+        connected = true;
+    } catch(runtime_error &e) {
+        ofLog(OF_LOG_ERROR, ofToString(e.what()));
+        connected = false;
+    }
+    return connected;
 }
 
 //--------
 void ofxManta::close() {
-    stopThread();
-    ofRemoveListener(ofEvents().update, this, &ofxManta::update);
-    Disconnect();
+    if (connected) {
+        stopThread();
+        ofRemoveListener(ofEvents().update, this, &ofxManta::update);
+        Disconnect();
+        connected = false;
+    }
 }
 
 //--------
 void ofxManta::update(ofEventArgs &data) {
     sendEventNotifications();
-}
-
-//--------
-float ofxManta::getPad(int row, int column) {
-    return pad[row][column];
-}
-
-//--------
-float ofxManta::getSlider(int index) {
-    return slider[index];
-}
-
-//--------
-float ofxManta::getButton(int index) {
-    return button[index];
 }
 
 //--------
@@ -119,6 +114,12 @@ void ofxManta::draw(int x, int y, int w) {
             ofPopMatrix();
         }
     }
+    
+    if (!connected) {
+        ofSetColor(255, 0, 0);
+        ofDrawBitmapString("Manta is not connected", 6, 11);
+    }
+
     
     ofPopMatrix();
     ofPopStyle();
