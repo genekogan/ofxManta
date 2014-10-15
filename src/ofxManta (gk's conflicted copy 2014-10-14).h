@@ -34,7 +34,7 @@ public:
     float * getPadRef(int row, int column) {return &pad[row][column];}
     float * getSliderRef(int index) {return &slider[index];}
     float * getButtonRef(int index) {return &button[index];}
-    
+
     
     
     
@@ -50,8 +50,10 @@ public:
     }
     
     void setSliderLed(int index, uint8_t value) {
-        SetSliderLED(Amber, index, value);
+        SetSliderLED(Amber, index, val);
+        val *= 2;
     }
+    uint8_t val =0;
     
     
     // add event listeners
@@ -75,7 +77,7 @@ public:
     void addButtonVelocityListener(L *listener, M method) {
         ofAddListener(buttonVelocityEvent, listener, method);
     }
-    
+
     // remove event listeners
     template <typename L, typename M>
     void removePadListener(L *listener, M method) {
@@ -97,28 +99,25 @@ public:
     void removeButtonVelocityListener(L *listener, M method) {
         ofRemoveListener(buttonVelocityEvent, listener, method);
     }
-    
+
 protected:
-    
-    // draw manta interface
     void redraw();
-    void redrawComponents();
     void drawPad(int row, int col);
     void drawButtons();
     void drawSliders();
-    
+
     // update process
     void update(ofEventArgs &data);
     void threadedFunction();
     void sendEventNotifications();
-    
+
     // get events from Manta
     void PadEvent(int row, int column, int id, int value);
     void SliderEvent(int id, int value);
     void ButtonEvent(int id, int value);
     void PadVelocityEvent(int row, int column, int id, int value);
     void ButtonVelocityEvent(int id, int value);
-    
+
     // ofEvent notifiers
     ofEvent<ofxMantaEvent> padEvent;
     ofEvent<ofxMantaEvent> sliderEvent;

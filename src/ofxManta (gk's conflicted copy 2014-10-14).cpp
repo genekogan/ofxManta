@@ -54,7 +54,27 @@ void ofxManta::close() {
 void ofxManta::update(ofEventArgs &data) {
     sendEventNotifications();
     if (animated) {
-        redrawComponents();
+        fbo.begin();
+        if (toRedrawPads) {
+            cout << "DRAW PADS " << endl;
+            for (int idx=0; idx<48; idx++) {
+                if (padsToRedraw[idx]) {
+                    cout << "DRAW " << idx << " " << floor(idx/8) << " " << idx%8 << endl;
+                    drawPad(floor(idx/8), idx%8);
+                    padsToRedraw[idx] = false;
+                }
+            }
+            toRedrawPads = false;
+        }
+        if (toRedrawButtons) {
+            drawButtons();
+            toRedrawButtons = false;
+        }
+        if (toRedrawSliders) {
+            drawSliders();
+            toRedrawSliders = false;
+        }
+        fbo.end();
     }
 }
 
@@ -79,11 +99,39 @@ void ofxManta::redraw() {
     ofSetColor(0);
     ofRect(0, 0, width, height);
 
-    // draw sliders
-    drawSliders();
-    
-    // draw buttons
-    drawButtons();
+    // draw sliders (outline)
+    ofPushMatrix();
+    ofSetColor(255);
+    ofTranslate(0.08*width, 0.05*height);
+    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofTranslate(-0.03*width, 0.08*height);
+    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofPopMatrix();
+
+    // draw sliders (value)
+    if (animated) {
+        drawSliders();
+    }
+
+    // draw buttons (outline)
+    ofSetCircleResolution(32);
+    ofPushMatrix();
+    ofSetColor(255);
+    ofTranslate(0, 0.025*height);
+    ofTranslate(0.8*width, 0.05*height);
+    ofCircle(0, 0, 0.02*width);
+    ofTranslate(0.1*width, 0);
+    ofCircle(0, 0, 0.02*width);
+    ofTranslate(-0.05*width, 0.08*height);
+    ofCircle(0, 0, 0.02*width);
+    ofTranslate(0.1*width, 0);
+    ofCircle(0, 0, 0.02*width);
+    ofPopMatrix();
+
+    // draw buttons (value)
+    if (animated) {
+        drawButtons();
+    }
     
     // draw pads
     for (int r=0; r<6; r++) {
@@ -105,33 +153,6 @@ void ofxManta::redraw() {
     toRedrawButtons = false;
     toRedrawPads = false;
     toRedrawSliders = false;
-}
-
-//--------
-void ofxManta::redrawComponents() {
-    fbo.begin();
-    ofPushMatrix();
-    ofPushStyle();
-    if (toRedrawPads) {
-        for (int idx=0; idx<48; idx++) {
-            if (padsToRedraw[idx]) {
-                drawPad(floor(idx/8), idx%8);
-                padsToRedraw[idx] = false;
-            }
-        }
-        toRedrawPads = false;
-    }
-    if (toRedrawButtons) {
-        drawButtons();
-        toRedrawButtons = false;
-    }
-    if (toRedrawSliders) {
-        drawSliders();
-        toRedrawSliders = false;
-    }
-    ofPopStyle();
-    ofPopMatrix();
-    fbo.end();
 }
 
 //--------
@@ -158,36 +179,18 @@ void ofxManta::drawPad(int row, int col) {
 void ofxManta::drawButtons() {
     ofPushMatrix();
     ofPushStyle();
-    
-    // draw buttons (outline)
+
     ofSetCircleResolution(32);
-    ofPushMatrix();
-    ofSetColor(255);
+    ofSetColor(0, 255, 0);
     ofTranslate(0, 0.025*height);
     ofTranslate(0.8*width, 0.05*height);
-    ofCircle(0, 0, 0.02*width);
+    ofCircle(0, 0, 0.02*width*(button[0]>0.0));
     ofTranslate(0.1*width, 0);
-    ofCircle(0, 0, 0.02*width);
+    ofCircle(0, 0, 0.02*width*(button[1]>0.0));
     ofTranslate(-0.05*width, 0.08*height);
-    ofCircle(0, 0, 0.02*width);
+    ofCircle(0, 0, 0.02*width*(button[2]>0.0));
     ofTranslate(0.1*width, 0);
-    ofCircle(0, 0, 0.02*width);
-    ofPopMatrix();
-
-    // draw buttons (value)
-    if (animated) {
-        ofSetCircleResolution(32);
-        ofSetColor(0, 255, 0);
-        ofTranslate(0, 0.025*height);
-        ofTranslate(0.8*width, 0.05*height);
-        ofCircle(0, 0, 0.02*width*(button[0]>0.0));
-        ofTranslate(0.1*width, 0);
-        ofCircle(0, 0, 0.02*width*(button[1]>0.0));
-        ofTranslate(-0.05*width, 0.08*height);
-        ofCircle(0, 0, 0.02*width*(button[2]>0.0));
-        ofTranslate(0.1*width, 0);
-        ofCircle(0, 0, 0.02*width*(button[3]>0.0));
-    }
+    ofCircle(0, 0, 0.02*width*(button[3]>0.0));
     
     ofPopStyle();
     ofPopMatrix();
@@ -197,24 +200,11 @@ void ofxManta::drawButtons() {
 void ofxManta::drawSliders() {
     ofPushMatrix();
     ofPushStyle();
-    
-    // draw sliders (outline)
-    ofSetColor(255);
+    ofSetColor(0, 255, 0);
     ofTranslate(0.08*width, 0.05*height);
-    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofRect(0, 0, 0.65*width*slider[0], 0.05*height);
     ofTranslate(-0.03*width, 0.08*height);
-    ofRect(0, 0, 0.65*width, 0.05*height);
-    ofPopMatrix();
-    
-    // draw sliders (value)
-    if (animated) {
-        ofSetColor(0, 255, 0);
-        ofTranslate(0.08*width, 0.05*height);
-        ofRect(0, 0, 0.65*width*slider[0], 0.05*height);
-        ofTranslate(-0.03*width, 0.08*height);
-        ofRect(0, 0, 0.65*width*slider[1], 0.05*height);
-    }
-    
+    ofRect(0, 0, 0.65*width*slider[1], 0.05*height);
     ofPopStyle();
     ofPopMatrix();
 }
@@ -284,9 +274,9 @@ void ofxManta::SliderEvent(int id, int value) {
     if (value == 65535) value = -1;
     ofxMantaEvent *sliderEventArgs = new ofxMantaEvent(NULL, NULL, id, value);
     sliderEvents.push_back(sliderEventArgs);
-    toRedrawSliders = animated;
     if (value == -1) return;
     slider[id] = ofClamp(value/4090.0, 0.0, 1.0);
+    toRedrawSliders = animated;
 }
 
 //--------

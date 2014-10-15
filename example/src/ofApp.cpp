@@ -12,6 +12,8 @@ void ofApp::setup(){
     manta.addPadVelocityListener(this, &ofApp::PadVelocityEvent);
     manta.addButtonVelocityListener(this, &ofApp::ButtonVelocityEvent);
     
+    // optionally, you can turn animation off
+    //manta.setAnimated(false);
 }
 
 //----------
