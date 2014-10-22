@@ -11,9 +11,11 @@ public:
     void update();
     void draw();
     void exit();
+    
+    void keyPressed(int key);
 
     ofxManta manta;
     
-    int column;
+    int sliderValue;
 };
 

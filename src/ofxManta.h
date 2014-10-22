@@ -35,24 +35,11 @@ public:
     float * getSliderRef(int index) {return &slider[index];}
     float * getButtonRef(int index) {return &button[index];}
     
-    
-    
-    
-    void setLedManual(bool manual) {
-        SetLEDControl(PadAndButton, !manual);
-        
-        //SetLEDControl(Button, !manual);
-        SetLEDControl(Slider, !manual);
-    }
-    
-    void setLedState(int row, int column, LEDState state) {
-        SetPadLED(state, column + 8 * row);
-    }
-    
-    void setSliderLed(int index, uint8_t value) {
-        SetSliderLED(Amber, index, value);
-    }
-    
+    // led control
+    void setLedManual(bool manual);
+    void setPadLedState(int row, int column, LEDState state);
+    void setSliderLedState(int index, LEDState state, int value);
+    void setButtonLedState(int index, LEDState state);
     
     // add event listeners
     template <typename L, typename M>
@@ -98,6 +85,9 @@ public:
         ofRemoveListener(buttonVelocityEvent, listener, method);
     }
     
+    int getDrawWidth() {return width;}
+    int getDrawHeight() {return height;}
+        
 protected:
     
     // draw manta interface
@@ -132,6 +122,10 @@ protected:
     vector<ofxMantaEvent *> padVelocityEvents;
     vector<ofxMantaEvent *> buttonVelocityEvents;
     
+    LEDState padLedState[6][8];
+    LEDState sliderLedState[2];
+    LEDState buttonLedState[4];
+
     float pad[6][8];
     float slider[2];
     float button[4];

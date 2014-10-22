@@ -6,45 +6,34 @@ void ofApp::setup(){
     // connect to manta
     manta.setup();
     
+    // set manual input
+    // manual makes the LEDs unresponsive to your fingers.
+    // setting it back to non-manual (finger) mode will erase
+    // all amber LEDs but keep red ones
+    manta.setLedManual(true);    
+
+    // set pads
+    manta.setPadLedState(0, 1, Manta::Red);
+    manta.setPadLedState(0, 2, Manta::Red);
+    manta.setPadLedState(1, 3, Manta::Amber);
+    manta.setPadLedState(1, 4, Manta::Amber);
+
+    // set buttons
+    manta.setButtonLedState(1, Manta::Amber);
+    manta.setButtonLedState(3, Manta::Red);
+    
 }
 
 //----------
 void ofApp::update(){
-
     if (ofGetFrameNum() % 60 == 0) {
-
-        // set led to be controllable only programmatically
-        manta.setLedManual(false);
-        
-        // clear previous column
-        manta.setLedState(0, column, Manta::Off);
-        manta.setLedState(1, column, Manta::Off);
-        manta.setLedState(2, column, Manta::Off);
-        manta.setLedState(3, column, Manta::Off);
-        manta.setLedState(4, column, Manta::Off);
-        manta.setLedState(5, column, Manta::Off);
-
-        // next column
-        column = (column + 1) % 8;
-        
-        // make column red
-        manta.setLedState(0, column, Manta::Red);
-        manta.setLedState(1, column, Manta::Red);
-        manta.setLedState(2, column, Manta::Red);
-        manta.setLedState(3, column, Manta::Red);
-        manta.setLedState(4, column, Manta::Red);
-        manta.setLedState(5, column, Manta::Red);
-
-        
-        manta.setSliderLed(0, column);
-
-        
-        // permit user to control led's by hand
-        manta.setLedManual(true);
-        
-        
-        
+        sliderValue = (sliderValue + 1) % 8;
+        manta.setSliderLedState(0, Manta::Amber, sliderValue);
     }
+}
+
+//----------
+void ofApp::keyPressed(int key) {
 }
 
 //----------
