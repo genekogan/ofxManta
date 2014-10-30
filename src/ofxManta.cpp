@@ -20,7 +20,7 @@ ofxManta::ofxManta() {
 bool ofxManta::setup() {
     try {
         Connect();
-        setLedManual(true);
+        setLedManual(false);
         ofAddListener(ofEvents().update, this, &ofxManta::update);
         startThread();
         connected = true;
