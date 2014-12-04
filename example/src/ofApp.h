@@ -21,5 +21,11 @@ public:
 
     ofxManta manta;
     
+    void keyPressed(int key) {
+        if (key==' ') {
+            bool con = manta.setup();
+            cout << "set up " << con << endl;
+        }
+    }
 };
 

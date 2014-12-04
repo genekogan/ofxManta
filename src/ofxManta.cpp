@@ -14,6 +14,7 @@ ofxManta::ofxManta() {
     height = width * 310.0 / 400.0;
     redraw();
     animated = true;
+    ofAddListener(ofEvents().update, this, &ofxManta::update);
 }
 
 //--------
@@ -21,12 +22,15 @@ bool ofxManta::setup() {
     try {
         Connect();
         setLedManual(false);
-        ofAddListener(ofEvents().update, this, &ofxManta::update);
         startThread();
+        redraw();
         connected = true;
     }
     catch(runtime_error &e) {
-        ofLog(OF_LOG_ERROR, ofToString(e.what()));
+        if (ofGetFrameNum() < 1) {
+            ofLog(OF_LOG_ERROR, ofToString(e.what()));
+        }
+        redraw();
         connected = false;
     }
     return connected;
@@ -52,6 +56,15 @@ void ofxManta::close() {
 
 //--------
 void ofxManta::update(ofEventArgs &data) {
+    if (!connected) {
+        if (ofGetFrameNum() % 30 == 0) {
+            bool reconnect = setup();
+            if (reconnect) {
+                redraw();
+            }
+        }
+        return;
+    }
     sendEventNotifications();
     if (animated) {
         redrawComponents();
@@ -325,7 +338,16 @@ void ofxManta::drawSliders() {
 void ofxManta::threadedFunction() {
     while(isThreadRunning()) {
         if(lock()) {
-            HandleEvents();
+            try {
+                HandleEvents();
+            }
+            catch(runtime_error &e) {
+                connected = false;
+                Disconnect();
+                unlock();
+                stopThread();
+                return;
+            }
             unlock();
         }
         else {
