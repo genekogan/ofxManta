@@ -20,12 +20,5 @@ public:
     void ButtonVelocityEvent(ofxMantaEvent & evt);
 
     ofxManta manta;
-    
-    void keyPressed(int key) {
-        if (key==' ') {
-            bool con = manta.setup();
-            cout << "set up " << con << endl;
-        }
-    }
 };
 
