@@ -87,8 +87,116 @@ public:
     
     int getDrawWidth() {return width;}
     int getDrawHeight() {return height;}
+    
+    
+    
+    
+    
+    
+    
+    //vector<int> selectedPads, selectedSliders, selectedButtons;
+    
+    //    void keyPressed(ofKeyEventArgs &e) {
+    //        if (e.key == OF_KEY_SHIFT)    shift = true;
+    //    }
+    //    void keyReleased(ofKeyEventArgs &e) {
+    //        if (e.key == OF_KEY_SHIFT)    shift = false;
+    //    }
+    
+    int viewSelection = 0;
+    
+    void setSelectionView(int selection) {
+        if (selection >= numSelectionSets ||
+            selection==viewSelection)  return;
+        viewSelection = selection;
+        for (int i=0; i<48; i++) {
+            padsToRedraw[i] = true;
+        }
+        toRedrawPads = true;
+        toRedrawSliders = true;
+        redrawComponents();
+    }
+    
+    int numSelectionSets = 4;
+    
+    void clearSelection() {
+        for (int s=0; s<numSelectionSets; s++) {
+            for (int i=0; i<48; i++) {
+                padSelection[s][i] = false;
+                padsToRedraw[i] = true;
+            }
+            for (int i=0; i<2; i++) {
+                sliderSelection[s][i] = false;
+            }
+            for (int i=0; i<4; i++) {
+                buttonSelection[s][i] = false;
+            }
+        }
+        toRedrawPads = true;
+        toRedrawSliders = true;
+        toRedrawButtons = true;
+    }
+    
+    void addSliderToSelection(int idx, int selection=0) {
+        if (selection >= numSelectionSets)  return;
+        //selectedSliders.push_back(idx);
+        sliderSelection[selection][idx] = true;
         
+        toRedrawSliders = true;
+    }
+    void addPadToSelection(int idx, int selection=0) {
+        if (selection >= numSelectionSets)  return;
+        padSelection[selection][idx] = true;
+        padsToRedraw[idx] = true;
+        toRedrawPads = true;
+//        redrawComponents();
+        //redraw();
+        //drawPad(floor(idx/8), idx%8);
+    }
+    void addButtonToSelection(int idx, int selection=0) {
+        if (selection >= numSelectionSets)  return;
+        buttonSelection[selection][idx] = true;
+        toRedrawButtons = true;
+    }
+    
+    map<int, bool> padSelection[4];
+    map<int, bool> sliderSelection[4];
+    map<int, bool> buttonSelection[4];
+    
+    vector<int> getPadSelection(int selection) {
+        vector<int> padsSelected;
+        for (int i=0; i<48; i++) {
+            if (padSelection[selection][i]) {
+                padsSelected.push_back(i);
+            }
+        }
+        return padsSelected;
+    }
+    vector<int> getSliderSelection(int selection) {
+        vector<int> slidersSelected;
+        for (int i=0; i<2; i++) {
+            if (sliderSelection[selection][i]) {
+                slidersSelected.push_back(i);
+            }
+        }
+        return slidersSelected;
+    }
+    vector<int> getButtonSelection(int selection) {
+        vector<int> buttonsSelected;
+        for (int i=0; i<4; i++) {
+            if (buttonSelection[selection][i]) {
+                buttonsSelected.push_back(i);
+            }
+        }
+        return buttonsSelected;
+    }
+    
+    
+    
 protected:
+    
+    ofColor ledColors[2];
+    ofColor selectionColors[4];
     
     // draw manta interface
     void redraw();
@@ -136,5 +244,11 @@ protected:
     ofFbo fbo;
     bool animated, toRedrawPads, toRedrawSliders, toRedrawButtons;
     bool padsToRedraw[48];
+    
+    
+    
+    
+    
+    
 };
 
