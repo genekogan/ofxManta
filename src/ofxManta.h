@@ -41,6 +41,16 @@ public:
     void setSliderLedState(int index, LEDState state, int value);
     void setButtonLedState(int index, LEDState state);
     
+    // selection
+    void setSelectionView(int selection);
+    void addSliderToSelection(int idx, int selection=0);
+    void addPadToSelection(int idx, int selection=0);
+    void addButtonToSelection(int idx, int selection=0);
+    void clearSelection();
+    vector<int> getPadSelection(int selection) {return getSelection(padSelection, selection);}
+    vector<int> getSliderSelection(int selection) {return getSelection(sliderSelection, selection);}
+    vector<int> getButtonSelection(int selection) {return getSelection(buttonSelection, selection);}
+
     // add event listeners
     template <typename L, typename M>
     void addPadListener(L *listener, M method) {
@@ -87,111 +97,7 @@ public:
     
     int getDrawWidth() {return width;}
     int getDrawHeight() {return height;}
-    
-    
-    
-    
-    
-    
-    
-    //vector<int> selectedPads, selectedSliders, selectedButtons;
-    
-    //    void keyPressed(ofKeyEventArgs &e) {
-    //        if (e.key == OF_KEY_SHIFT)    shift = true;
-    //    }
-    //    void keyReleased(ofKeyEventArgs &e) {
-    //        if (e.key == OF_KEY_SHIFT)    shift = false;
-    //    }
-    
-    int viewSelection = 0;
-    
-    void setSelectionView(int selection) {
-        if (selection >= numSelectionSets ||
-            selection==viewSelection)  return;
-        viewSelection = selection;
-        for (int i=0; i<48; i++) {
-            padsToRedraw[i] = true;
-        }
-        toRedrawPads = true;
-        toRedrawSliders = true;
-        redrawComponents();
-    }
-    
-    int numSelectionSets = 4;
-    
-    void clearSelection() {
-        for (int s=0; s<numSelectionSets; s++) {
-            for (int i=0; i<48; i++) {
-                padSelection[s][i] = false;
-                padsToRedraw[i] = true;
-            }
-            for (int i=0; i<2; i++) {
-                sliderSelection[s][i] = false;
-            }
-            for (int i=0; i<4; i++) {
-                buttonSelection[s][i] = false;
-            }
-        }
-        toRedrawPads = true;
-        toRedrawSliders = true;
-        toRedrawButtons = true;
-    }
-    
-    void addSliderToSelection(int idx, int selection=0) {
-        if (selection >= numSelectionSets)  return;
-        //selectedSliders.push_back(idx);
-        sliderSelection[selection][idx] = true;
-        
-        toRedrawSliders = true;
-    }
-    void addPadToSelection(int idx, int selection=0) {
-        if (selection >= numSelectionSets)  return;
-        padSelection[selection][idx] = true;
-        padsToRedraw[idx] = true;
-        toRedrawPads = true;
-//        redrawComponents();
-        //redraw();
-        //drawPad(floor(idx/8), idx%8);
-    }
-    void addButtonToSelection(int idx, int selection=0) {
-        if (selection >= numSelectionSets)  return;
-        buttonSelection[selection][idx] = true;
-        toRedrawButtons = true;
-    }
-    
-    map<int, bool> padSelection[4];
-    map<int, bool> sliderSelection[4];
-    map<int, bool> buttonSelection[4];
-    
-    vector<int> getPadSelection(int selection) {
-        vector<int> padsSelected;
-        for (int i=0; i<48; i++) {
-            if (padSelection[selection][i]) {
-                padsSelected.push_back(i);
-            }
-        }
-        return padsSelected;
-    }
-    vector<int> getSliderSelection(int selection) {
-        vector<int> slidersSelected;
-        for (int i=0; i<2; i++) {
-            if (sliderSelection[selection][i]) {
-                slidersSelected.push_back(i);
-            }
-        }
-        return slidersSelected;
-    }
-    vector<int> getButtonSelection(int selection) {
-        vector<int> buttonsSelected;
-        for (int i=0; i<4; i++) {
-            if (buttonSelection[selection][i]) {
-                buttonsSelected.push_back(i);
-            }
-        }
-        return buttonsSelected;
-    }
-    
-    
+
     
 protected:
     
@@ -217,6 +123,9 @@ protected:
     void PadVelocityEvent(int row, int column, int id, int value);
     void ButtonVelocityEvent(int id, int value);
     
+    // selection
+    vector<int> getSelection(map<int, bool> selected[4], int selection);
+    
     // ofEvent notifiers
     ofEvent<ofxMantaEvent> padEvent;
     ofEvent<ofxMantaEvent> sliderEvent;
@@ -233,6 +142,13 @@ protected:
     LEDState padLedState[6][8];
     LEDState sliderLedState[2];
     LEDState buttonLedState[4];
+    
+    map<int, bool> padSelection[4];
+    map<int, bool> sliderSelection[4];
+    map<int, bool> buttonSelection[4];
+
+    int numSelectionSets = 4;
+    int viewSelection = 0;
 
     float pad[6][8];
     float slider[2];
@@ -243,12 +159,6 @@ protected:
     int width, height;
     ofFbo fbo;
     bool animated, toRedrawPads, toRedrawSliders, toRedrawButtons;
-    bool padsToRedraw[48];
-    
-    
-    
-    
-    
-    
+    bool padsToRedraw[48];    
 };
 

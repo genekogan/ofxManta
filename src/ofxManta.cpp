@@ -84,15 +84,6 @@ void ofxManta::update(ofEventArgs &data) {
     if (animated) {
         redrawComponents();
     }
-    
-    
-    //////////    //////////    //////////    //////////    //////////
-        //////////    //////////    //////////    //////////    //////////    //////////
-        //////////    //////////    //////////    //////////    //////////    //////////
-        //////////    //////////    //////////    //////////
-    
-    redrawComponents();
-    redraw();
 }
 
 //--------
@@ -389,6 +380,71 @@ void ofxManta::drawSliders() {
     }
     
     ofPopStyle();
+}
+
+//--------
+void ofxManta::setSelectionView(int selection) {
+    if (selection >= numSelectionSets ||
+        selection==viewSelection)  return;
+    viewSelection = selection;
+    for (int i=0; i<48; i++) {
+        padsToRedraw[i] = true;
+    }
+    toRedrawPads = true;
+    toRedrawSliders = true;
+    redrawComponents();
+}
+
+//--------
+void ofxManta::clearSelection() {
+    for (int s=0; s<numSelectionSets; s++) {
+        for (int i=0; i<48; i++) {
+            padSelection[s][i] = false;
+            padsToRedraw[i] = true;
+        }
+        for (int i=0; i<2; i++) {
+            sliderSelection[s][i] = false;
+        }
+        for (int i=0; i<4; i++) {
+            buttonSelection[s][i] = false;
+        }
+    }
+    toRedrawPads = true;
+    toRedrawSliders = true;
+    toRedrawButtons = true;
+}
+
+//--------
+void ofxManta::addSliderToSelection(int idx, int selection) {
+    if (selection >= numSelectionSets)  return;
+    sliderSelection[selection][idx] = true;
+    toRedrawSliders = true;
+}
+
+//--------
+void ofxManta::addPadToSelection(int idx, int selection) {
+    if (selection >= numSelectionSets)  return;
+    padSelection[selection][idx] = true;
+    padsToRedraw[idx] = true;
+    toRedrawPads = true;
+}
+
+//--------
+void ofxManta::addButtonToSelection(int idx, int selection) {
+    if (selection >= numSelectionSets)  return;
+    buttonSelection[selection][idx] = true;
+    toRedrawButtons = true;
+}
+
+//--------
+vector<int> ofxManta::getSelection(map<int, bool> selected[4], int selection) {
+    vector<int> idx;
+    for (int i=0; i<48; i++) {
+        if (selected[selection][i]) {
+            idx.push_back(i);
+        }
+    }
+    return idx;
 }
 
 //--------
