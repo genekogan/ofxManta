@@ -43,13 +43,33 @@ public:
     
     // selection
     void setSelectionView(int selection);
+    void setSelectionView(bool drawAllSelectionLayers) {this->drawAllSelectionLayers = drawAllSelectionLayers;}
+    void addPadToSelection(int row, int col, int selection=0);
     void addSliderToSelection(int idx, int selection=0);
-    void addPadToSelection(int idx, int selection=0);
     void addButtonToSelection(int idx, int selection=0);
+    void removePadFromSelection(int row, int col, int selection=0);
+    void removeSliderFromSelection(int idx, int selection=0);
+    void removeButtonFromSelection(int idx, int selection=0);
+    
+    void clearPadSelection(int selection);
+    void clearSliderSelection(int selection);
+    void clearButtonSelection(int selection);
+    void clearSelection(int selection);
+    void clearPadSelection();
+    void clearSliderSelection();
+    void clearButtonSelection();
     void clearSelection();
-    vector<int> getPadSelection(int selection) {return getSelection(padSelection, selection);}
-    vector<int> getSliderSelection(int selection) {return getSelection(sliderSelection, selection);}
-    vector<int> getButtonSelection(int selection) {return getSelection(buttonSelection, selection);}
+
+    bool getPadSelected(int idx, int selection=0);
+    bool getSliderSelected(int idx, int selection=0);
+    bool getButtonSelected(int idx, int selection=0);
+    vector<int> getPadSelection(int selection=0) {return getSelection(padSelection, selection);}
+    vector<int> getSliderSelection(int selection=0) {return getSelection(sliderSelection, selection);}
+    vector<int> getButtonSelection(int selection=0) {return getSelection(buttonSelection, selection);}
+
+    // drawing
+    int getDrawWidth() {return width;}
+    int getDrawHeight() {return height;}
 
     // add event listeners
     template <typename L, typename M>
@@ -95,9 +115,6 @@ public:
         ofRemoveListener(buttonVelocityEvent, listener, method);
     }
     
-    int getDrawWidth() {return width;}
-    int getDrawHeight() {return height;}
-
     
 protected:
     
@@ -159,6 +176,7 @@ protected:
     int width, height;
     ofFbo fbo;
     bool animated, toRedrawPads, toRedrawSliders, toRedrawButtons;
-    bool padsToRedraw[48];    
+    bool padsToRedraw[48];
+    bool drawAllSelectionLayers;
 };
 
