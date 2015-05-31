@@ -41,7 +41,7 @@ void ofApp::exit() {
 
 //----------
 void ofApp::PadEvent(ofxMantaEvent & evt) {
-    cout << "Pad event: " << ", id " << evt.id << ", row "<< evt.row <<", column "<< evt.col << ", value "<< evt.value << endl;
+    cout << "Pad event: id " << evt.id << ", row "<< evt.row <<", column "<< evt.col << ", value "<< evt.value << endl;
 }
 
 //----------

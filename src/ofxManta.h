@@ -22,8 +22,8 @@ public:
     void close();
     void setAnimated(bool animated);
     bool getAnimated() {return animated;}
-    bool getConnected() {return connected;}
     
+    virtual void update();
     virtual void draw(int x, int y, int w = 400);
 
     // get current state
@@ -93,7 +93,7 @@ protected:
     void drawSliders();
     
     // update process
-    void update(ofEventArgs &data);
+    void update(ofEventArgs &data) {update();}
     void threadedFunction();
     void sendEventNotifications();
 
@@ -134,8 +134,6 @@ protected:
     float pad[6][8];
     float slider[2];
     float button[4];
-    
-    bool connected;
 
     int numSelectionSets;
     int viewSelection;

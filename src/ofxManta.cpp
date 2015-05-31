@@ -33,10 +33,13 @@ bool ofxManta::setup()
     try
     {
         Connect();
-        setLedManual(false);
-        startThread();
-        redraw();
-        connected = true;
+        if (IsConnected())
+        {
+            ofLog(OF_LOG_NOTICE, "Successfully connected to Manta.");
+            setLedManual(false);
+            startThread();
+            redraw();
+        }
     }
     catch(runtime_error &e)
     {
@@ -44,19 +47,17 @@ bool ofxManta::setup()
             ofLog(OF_LOG_ERROR, ofToString(e.what()));
         }
         redraw();
-        connected = false;
     }
-    return connected;
+    return IsConnected();
 }
 
 void ofxManta::close()
 {
-    if (connected)
+    if (IsConnected())
     {
         stopThread();
         ofRemoveListener(ofEvents().update, this, &ofxManta::update);
         Disconnect();
-        connected = false;
     }
 }
 
@@ -68,22 +69,18 @@ void ofxManta::setAnimated(bool animated)
     }
 }
 
-void ofxManta::update(ofEventArgs &data)
+void ofxManta::update()
 {
-    if (!connected)
+    if (IsConnected())
     {
-        if (ofGetFrameNum() % 120 == 0)
-        {
-            bool reconnect = setup();
-            if (reconnect) {
-                redraw();
-            }
+        sendEventNotifications();
+        if (animated) {
+            redrawComponents();
         }
-        return;
     }
-    sendEventNotifications();
-    if (animated) {
-        redrawComponents();
+    // try to reconnect
+    else if (ofGetFrameNum() % 120 == 0) {
+        setup();
     }
 }
 
@@ -124,7 +121,7 @@ void ofxManta::redraw()
         }
     }
     
-    if (!connected)
+    if (!IsConnected())
     {
         ofSetColor(255, 0, 0);
         ofDrawBitmapString("Manta is not connected", 6, 11);
@@ -590,7 +587,6 @@ void ofxManta::threadedFunction()
             }
             catch(runtime_error &e)
             {
-                connected = false;
                 Disconnect();
                 unlock();
                 stopThread();
@@ -607,7 +603,7 @@ void ofxManta::threadedFunction()
 
 void ofxManta::sendEventNotifications()
 {
-    if (!connected) return;
+    if (!IsConnected()) return;
     if(lock())
     {
         for (int i=0; i<padEvents.size(); i++)
