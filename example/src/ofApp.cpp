@@ -12,7 +12,7 @@ void ofApp::setup(){
     manta.addPadVelocityListener(this, &ofApp::PadVelocityEvent);
     manta.addButtonVelocityListener(this, &ofApp::ButtonVelocityEvent);
     
-    // optionally, you can turn animation off
+    // optionally, you can turn animation off to stop redrawing manta interface
     //manta.setAnimated(false);
 }
 
@@ -30,12 +30,18 @@ void ofApp::draw(){
 
 //----------
 void ofApp::exit() {
+    manta.removePadListener(this, &ofApp::PadEvent);
+    manta.removeSliderListener(this, &ofApp::SliderEvent);
+    manta.removeButtonListener(this, &ofApp::ButtonEvent);
+    manta.removePadVelocityListener(this, &ofApp::PadVelocityEvent);
+    manta.removeButtonVelocityListener(this, &ofApp::ButtonVelocityEvent);
+
     manta.close();
 }
 
 //----------
 void ofApp::PadEvent(ofxMantaEvent & evt) {
-    cout << "Pad event: " << ofGetElapsedTimeMicros() << ", id " << evt.id << ", row "<< evt.row <<", column "<< evt.col << ", value "<< evt.value << endl;
+    cout << "Pad event: " << ", id " << evt.id << ", row "<< evt.row <<", column "<< evt.col << ", value "<< evt.value << endl;
 }
 
 //----------
