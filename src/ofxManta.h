@@ -4,6 +4,11 @@
 #include "Manta.h"
 
 
+#define MANTA_MAX_PAD_VALUE 196
+#define MANTA_MAX_SLIDER_VALUE 4096
+#define MANTA_MAX_BUTTON_VALUE 255
+
+
 class ofxMantaEvent : public ofEventArgs
 {
 public:
@@ -27,18 +32,18 @@ public:
     virtual void draw(int x, int y, int w = 400);
 
     // get current state
-    float getPad(int row, int column) {return pad[row][column];}
-    float getSlider(int index) {return slider[index];}
-    float getButton(int index) {return button[index];}
-    float * getPadRef(int row, int column) {return &pad[row][column];}
-    float * getSliderRef(int index) {return &slider[index];}
-    float * getButtonRef(int index) {return &button[index];}
+    ofParameter<float> & getPad(int row, int column) {return pad[row][column];}
+    ofParameter<float> & getSlider(int index) {return slider[index];}
+    ofParameter<float> & getButton(int index) {return button[index];}
     
     // led control
     void setLedManual(bool manual);
     void setPadLedState(int row, int column, LEDState state);
     void setSliderLedState(int index, LEDState state, int value);
     void setButtonLedState(int index, LEDState state);
+    void markAllPads(LEDState state);
+    void markAllSliders(LEDState state, int value);
+    void markAllButtons(LEDState state);
     
     // selection
     void setSelectionView(int selection);
@@ -114,11 +119,11 @@ protected:
     ofEvent<ofxMantaEvent> padVelocityEvent;
     ofEvent<ofxMantaEvent> buttonVelocityEvent;
     
-    vector<ofxMantaEvent *> padEvents;
-    vector<ofxMantaEvent *> sliderEvents;
-    vector<ofxMantaEvent *> buttonEvents;
-    vector<ofxMantaEvent *> padVelocityEvents;
-    vector<ofxMantaEvent *> buttonVelocityEvents;
+    vector<ofxMantaEvent*> padEvents;
+    vector<ofxMantaEvent*> sliderEvents;
+    vector<ofxMantaEvent*> buttonEvents;
+    vector<ofxMantaEvent*> padVelocityEvents;
+    vector<ofxMantaEvent*> buttonVelocityEvents;
     
     ofColor ledColors[2];
     ofColor selectionColors[4];
@@ -131,9 +136,9 @@ protected:
     map<int, bool> sliderSelection[4];
     map<int, bool> buttonSelection[4];
 
-    float pad[6][8];
-    float slider[2];
-    float button[4];
+    ofParameter<float> pad[6][8];
+    ofParameter<float> slider[2];
+    ofParameter<float> button[4];
 
     int numSelectionSets;
     int viewSelection;
@@ -143,5 +148,7 @@ protected:
     bool animated, toRedrawPads, toRedrawSliders, toRedrawButtons;
     bool padsToRedraw[48];
     bool drawAllSelectionLayers;
+    
+    float padMult, sliderMult, buttonMult;
 };
 

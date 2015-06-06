@@ -10,20 +10,39 @@ ofxMantaEvent::ofxMantaEvent(int row, int col, int id, int value)
 
 ofxManta::ofxManta() : Manta()
 {
+    for (int r=0; r<6; r++) {
+        for (int c=0; c<8; c++) {
+            pad[r][c].set("pad("+ofToString(r+1)+","+ofToString(c+1)+")", 0, 0, 1);
+        }
+    }
+    for (int i=0; i<2; i++) {
+        slider[i].set("slider("+ofToString(i+1)+")", 0, 0, 1);
+    }
+    for (int i=0; i<4; i++) {
+        button[i].set("button("+ofToString(i+1)+")", 0, 0, 1);
+    }
+    
+    padMult = 1.0 / MANTA_MAX_PAD_VALUE;
+    sliderMult = 1.0 / MANTA_MAX_SLIDER_VALUE;
+    buttonMult = 1.0 / MANTA_MAX_BUTTON_VALUE;
+
     width = 100;
     height = width * 310.0 / 400.0;
     redraw();
     animated = true;
     numSelectionSets = 4;
     viewSelection = 0;
-
-    // colors
+    
     ledColors[0] = ofColor(255, 255, 0); // amber
     ledColors[1] = ofColor(255, 0, 0);   // red
     selectionColors[0] = ofColor(255, 125, 0);
     selectionColors[1] = ofColor(0, 255, 125);
     selectionColors[2] = ofColor(125, 0, 255);
     selectionColors[3] = ofColor(125, 255, 0);
+
+    fbo.begin();
+    ofClear(0, 0);
+    fbo.end();
     
     ofAddListener(ofEvents().update, this, &ofxManta::update);
 }
@@ -53,6 +72,11 @@ bool ofxManta::setup()
 
 void ofxManta::close()
 {
+    setLedManual(true);
+    markAllPads(Manta::Off);
+    markAllSliders(Manta::Off, 0);
+    markAllButtons(Manta::Off);
+    ofSleepMillis(100); // give it a moment to turn off lights
     if (IsConnected())
     {
         stopThread();
@@ -232,7 +256,7 @@ void ofxManta::drawPad(int row, int col)
     }
     else
     {
-        if (padSelection[viewSelection][col+8*row])
+        if (padSelection[viewSelection][col + 8 * row])
         {
             ofSetColor(selectionColors[viewSelection]);
             ofNoFill();
@@ -655,7 +679,7 @@ void ofxManta::setPadLedState(int row, int column, LEDState state)
 {
     SetPadLED(state, column + 8 * row);
     padLedState[row][column] = state;
-    padsToRedraw[column+8*row] = true;
+    padsToRedraw[column + 8 * row] = true;
     toRedrawPads = true;
 }
 
@@ -675,11 +699,34 @@ void ofxManta::setButtonLedState(int index, LEDState state)
     toRedrawButtons = true;
 }
 
+void ofxManta::markAllPads(LEDState state)
+{
+    for (int r=0; r<6; r++) {
+        for (int c=0; c<8; c++) {
+            setPadLedState(r, c, state);
+        }
+    }
+}
+
+void ofxManta::markAllSliders(LEDState state, int value)
+{
+    for (int i=0; i<2; i++) {
+        setSliderLedState(0, state, value);
+    }
+}
+
+void ofxManta::markAllButtons(LEDState state)
+{
+    for (int i=0; i<4; i++) {
+        setButtonLedState(i, state);
+    }
+}
+
 void ofxManta::PadEvent(int row, int column, int id, int value)
 {
     padEvents.push_back(new ofxMantaEvent(row, column, id, value));
     padsToRedraw[column + 8 * row] = (value != pad[row][column]);
-    pad[row][column] = value;
+    pad[row][column] = value; //padMult * value;
     toRedrawPads = animated;
 }
 
@@ -689,13 +736,13 @@ void ofxManta::SliderEvent(int id, int value)
     sliderEvents.push_back(new ofxMantaEvent(NULL, NULL, id, value));
     toRedrawSliders = animated;
     if (value == -1) return;
-    slider[id] = ofClamp(value/4090.0, 0.0, 1.0);
+    slider[id] = sliderMult * value;
 }
 
 void ofxManta::ButtonEvent(int id, int value)
 {
     buttonEvents.push_back(new ofxMantaEvent(NULL, NULL, id, value));
-    button[id] = ofClamp(value / 254.0, 0.0, 1.0);
+    button[id] = buttonMult * value;
     toRedrawButtons = animated;
 }
 

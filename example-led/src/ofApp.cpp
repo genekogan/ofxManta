@@ -10,8 +10,8 @@ void ofApp::setup(){
     // manual makes the LEDs unresponsive to your fingers.
     // setting it back to non-manual (finger) mode will erase
     // all amber LEDs but keep red ones
-    manta.setLedManual(true);    
-
+    manta.setLedManual(true);
+    
     // set pads
     manta.setPadLedState(0, 1, Manta::Red);
     manta.setPadLedState(0, 2, Manta::Red);
@@ -21,7 +21,6 @@ void ofApp::setup(){
     // set buttons
     manta.setButtonLedState(1, Manta::Amber);
     manta.setButtonLedState(3, Manta::Red);
-    
 }
 
 //----------
@@ -34,6 +33,7 @@ void ofApp::update(){
 
 //----------
 void ofApp::keyPressed(int key) {
+    
 }
 
 //----------
@@ -43,5 +43,5 @@ void ofApp::draw(){
 
 //----------
 void ofApp::exit() {
-    manta.close();
+    
 }
