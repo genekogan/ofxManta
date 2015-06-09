@@ -602,9 +602,9 @@ vector<int> ofxManta::getSelection(map<int, bool> selected[4], int selection)
 
 void ofxManta::threadedFunction()
 {
-    while(isThreadRunning())
+    while (isThreadRunning())
     {
-        if(lock())
+        if (lock())
         {
             try {
                 HandleEvents();
@@ -677,6 +677,7 @@ void ofxManta::setLedManual(bool manual)
 
 void ofxManta::setPadLedState(int row, int column, LEDState state)
 {
+    setLedManual(true);
     SetPadLED(state, column + 8 * row);
     padLedState[row][column] = state;
     padsToRedraw[column + 8 * row] = true;
@@ -685,6 +686,7 @@ void ofxManta::setPadLedState(int row, int column, LEDState state)
 
 void ofxManta::setSliderLedState(int index, LEDState state, int value)
 {
+    setLedManual(true);
     SetSliderLED(Off, index, 255);
     uint8_t mask = (1 << (7-value));
     SetSliderLED(state, index, mask);
@@ -694,6 +696,7 @@ void ofxManta::setSliderLedState(int index, LEDState state, int value)
 
 void ofxManta::setButtonLedState(int index, LEDState state)
 {
+    setLedManual(true);
     SetButtonLED(state, index);
     buttonLedState[index] = state;
     toRedrawButtons = true;
