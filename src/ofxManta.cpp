@@ -22,6 +22,12 @@ ofxManta::ofxManta() : Manta()
         button[i].set("button("+ofToString(i+1)+")", 0, 0, 1);
     }
     
+    eventTypeLookup[PAD] = padEvent;
+    eventTypeLookup[SLIDER] = sliderEvent;
+    eventTypeLookup[BUTTON] = buttonEvent;
+    eventTypeLookup[PAD_VELOCITY] = padVelocityEvent;
+    eventTypeLookup[BUTTON_VELOCITY] = buttonVelocityEvent;
+    
     padMult = 1.0 / MANTA_MAX_PAD_VALUE;
     sliderMult = 1.0 / MANTA_MAX_SLIDER_VALUE;
     buttonMult = 1.0 / MANTA_MAX_BUTTON_VALUE;
@@ -630,38 +636,12 @@ void ofxManta::sendEventNotifications()
     if (!IsConnected()) return;
     if(lock())
     {
-        for (int i=0; i<padEvents.size(); i++)
+        for (int i=0; i<events.size(); i++)
         {
-            ofNotifyEvent(padEvent, *padEvents[i], this);
-            delete padEvents[i];
+            ofNotifyEvent(eventTypeLookup[events[i]->type], *events[i]->event, this);
+            delete events[i];
         }
-        for (int i=0; i<sliderEvents.size(); i++)
-        {
-            ofNotifyEvent(sliderEvent, *sliderEvents[i], this);
-            delete sliderEvents[i];
-        }
-        for (int i=0; i<buttonEvents.size(); i++)
-        {
-            ofNotifyEvent(buttonEvent, *buttonEvents[i], this);
-            delete buttonEvents[i];
-        }
-        for (int i=0; i<padVelocityEvents.size(); i++)
-        {
-            ofNotifyEvent(padVelocityEvent, *padVelocityEvents[i], this);
-            delete padVelocityEvents[i];
-        }
-        for (int i=0; i<buttonVelocityEvents.size(); i++)
-        {
-            ofNotifyEvent(buttonVelocityEvent, *buttonVelocityEvents[i], this);
-            delete buttonVelocityEvents[i];
-        }
-        
-        padEvents.clear();
-        sliderEvents.clear();
-        buttonEvents.clear();
-        padVelocityEvents.clear();
-        buttonVelocityEvents.clear();
-        
+        events.clear();
         unlock();
     }
     else {
@@ -727,7 +707,7 @@ void ofxManta::markAllButtons(LEDState state)
 
 void ofxManta::PadEvent(int row, int column, int id, int value)
 {
-    padEvents.push_back(new ofxMantaEvent(row, column, id, value));
+    events.push_back(new MantaEvent(PAD, new ofxMantaEvent(row, column, id, value)));
     padsToRedraw[column + 8 * row] = (value != pad[row][column]);
     pad[row][column] = value; //padMult * value;
     toRedrawPads = animated;
@@ -736,7 +716,7 @@ void ofxManta::PadEvent(int row, int column, int id, int value)
 void ofxManta::SliderEvent(int id, int value)
 {
     if (value == 65535) value = -1;
-    sliderEvents.push_back(new ofxMantaEvent(NULL, NULL, id, value));
+    events.push_back(new MantaEvent(SLIDER, new ofxMantaEvent(NULL, NULL, id, value)));
     toRedrawSliders = animated;
     if (value == -1) return;
     slider[id] = sliderMult * value;
@@ -744,19 +724,19 @@ void ofxManta::SliderEvent(int id, int value)
 
 void ofxManta::ButtonEvent(int id, int value)
 {
-    buttonEvents.push_back(new ofxMantaEvent(NULL, NULL, id, value));
+    events.push_back(new MantaEvent(BUTTON, new ofxMantaEvent(NULL, NULL, id, value)));
     button[id] = buttonMult * value;
     toRedrawButtons = animated;
 }
 
 void ofxManta::PadVelocityEvent(int row, int column, int id, int value)
 {
-    padVelocityEvents.push_back(new ofxMantaEvent(row, column, id, value));
+    events.push_back(new MantaEvent(PAD_VELOCITY, new ofxMantaEvent(row, column, id, value)));
 }
 
 void ofxManta::ButtonVelocityEvent(int id, int value)
 {
-    buttonVelocityEvents.push_back(new ofxMantaEvent(NULL, NULL, id, value));
+    events.push_back(new MantaEvent(BUTTON_VELOCITY, new ofxMantaEvent(NULL, NULL, id, value)));
 }
 
 ofxManta::~ofxManta()

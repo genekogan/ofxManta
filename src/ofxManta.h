@@ -75,20 +75,33 @@ public:
     int getDrawHeight() {return height;}
 
     // add event listeners
-    template <typename L, typename M> void addPadListener(L *listener, M method) {ofAddListener(padEvent, listener, method);}
-    template <typename L, typename M> void addSliderListener(L *listener, M method) {ofAddListener(sliderEvent, listener, method);}
-    template <typename L, typename M> void addButtonListener(L *listener, M method) {ofAddListener(buttonEvent, listener, method);}
-    template <typename L, typename M> void addPadVelocityListener(L *listener, M method) {ofAddListener(padVelocityEvent, listener, method);}
-    template <typename L, typename M> void addButtonVelocityListener(L *listener, M method) {ofAddListener(buttonVelocityEvent, listener, method);}
+    template <typename L, typename M> void addPadListener(L *listener, M method) {ofAddListener(eventTypeLookup[PAD], listener, method);}
+    template <typename L, typename M> void addSliderListener(L *listener, M method) {ofAddListener(eventTypeLookup[SLIDER], listener, method);}
+    template <typename L, typename M> void addButtonListener(L *listener, M method) {ofAddListener(eventTypeLookup[BUTTON], listener, method);}
+    template <typename L, typename M> void addPadVelocityListener(L *listener, M method) {ofAddListener(eventTypeLookup[PAD_VELOCITY], listener, method);}
+    template <typename L, typename M> void addButtonVelocityListener(L *listener, M method) {ofAddListener(eventTypeLookup[BUTTON_VELOCITY], listener, method);}
     
     // remove event listeners
-    template <typename L, typename M> void removePadListener(L *listener, M method) {ofRemoveListener(padEvent, listener, method);}
-    template <typename L, typename M> void removeSliderListener(L *listener, M method) {ofRemoveListener(sliderEvent, listener, method);}
-    template <typename L, typename M> void removeButtonListener(L *listener, M method) {ofRemoveListener(buttonEvent, listener, method);}
-    template <typename L, typename M> void removePadVelocityListener(L *listener, M method) {ofRemoveListener(padVelocityEvent, listener, method);}
-    template <typename L, typename M> void removeButtonVelocityListener(L *listener, M method) {ofRemoveListener(buttonVelocityEvent, listener, method);}
+    template <typename L, typename M> void removePadListener(L *listener, M method) {ofRemoveListener(eventTypeLookup[PAD], listener, method);}
+    template <typename L, typename M> void removeSliderListener(L *listener, M method) {ofRemoveListener(eventTypeLookup[SLIDER], listener, method);}
+    template <typename L, typename M> void removeButtonListener(L *listener, M method) {ofRemoveListener(eventTypeLookup[BUTTON], listener, method);}
+    template <typename L, typename M> void removePadVelocityListener(L *listener, M method) {ofRemoveListener(eventTypeLookup[PAD_VELOCITY], listener, method);}
+    template <typename L, typename M> void removeButtonVelocityListener(L *listener, M method) {ofRemoveListener(eventTypeLookup[BUTTON_VELOCITY], listener, method);}
     
 protected:
+
+    enum MantaEventType {
+        PAD, SLIDER, BUTTON, PAD_VELOCITY, BUTTON_VELOCITY
+    };
+
+    struct MantaEvent {
+        ofxMantaEvent *event;
+        MantaEventType type;
+        MantaEvent(MantaEventType type, ofxMantaEvent *event) {
+            this->type = type;
+            this->event = event;
+        }
+    };
     
     // draw manta interface
     void redraw();
@@ -113,18 +126,16 @@ protected:
     void ButtonVelocityEvent(int id, int value);
 
     // ofEvent notifiers
+    map<MantaEventType, ofEvent<ofxMantaEvent> > eventTypeLookup;
+    vector<MantaEvent*> events;
+    
     ofEvent<ofxMantaEvent> padEvent;
     ofEvent<ofxMantaEvent> sliderEvent;
     ofEvent<ofxMantaEvent> buttonEvent;
     ofEvent<ofxMantaEvent> padVelocityEvent;
     ofEvent<ofxMantaEvent> buttonVelocityEvent;
-    
-    vector<ofxMantaEvent*> padEvents;
-    vector<ofxMantaEvent*> sliderEvents;
-    vector<ofxMantaEvent*> buttonEvents;
-    vector<ofxMantaEvent*> padVelocityEvents;
-    vector<ofxMantaEvent*> buttonVelocityEvents;
-    
+
+    // LED + Colors
     ofColor ledColors[2];
     ofColor selectionColors[4];
 
@@ -132,16 +143,18 @@ protected:
     LEDState sliderLedState[2];
     LEDState buttonLedState[4];
     
+    // selection
     map<int, bool> padSelection[4];
     map<int, bool> sliderSelection[4];
     map<int, bool> buttonSelection[4];
 
+    int numSelectionSets;
+    int viewSelection;
+
+    // internal
     ofParameter<float> pad[6][8];
     ofParameter<float> slider[2];
     ofParameter<float> button[4];
-
-    int numSelectionSets;
-    int viewSelection;
 
     int width, height;
     ofFbo fbo;
