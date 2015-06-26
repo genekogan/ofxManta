@@ -277,10 +277,29 @@ void ofxManta::drawButtons()
 {
     ofPushMatrix();
     ofPushStyle();
-    
+
+    // draw buttons (blackout outline)
+    ofSetCircleResolution(32);
+    ofPushMatrix();
+    ofSetLineWidth(5);
+    ofNoFill();
+    ofSetColor(0);
+    ofTranslate(0, 0.025*height);
+    ofTranslate(0.8*width, 0.05*height);
+    ofCircle(0, 0, 0.02*width);
+    ofTranslate(0.1*width, 0);
+    ofCircle(0, 0, 0.02*width);
+    ofTranslate(-0.05*width, 0.08*height);
+    ofCircle(0, 0, 0.02*width);
+    ofTranslate(0.1*width, 0);
+    ofCircle(0, 0, 0.02*width);
+    ofPopMatrix();
+
     // draw buttons (outline)
     ofSetCircleResolution(32);
     ofPushMatrix();
+    ofSetLineWidth(3);
+    ofFill();
     ofSetColor(255);
     ofTranslate(0, 0.025*height);
     ofTranslate(0.8*width, 0.05*height);
@@ -395,15 +414,26 @@ void ofxManta::drawSliders()
 {
     ofPushStyle();
     
-    // draw sliders (outline)
+    // draw sliders (blackout outline)
     ofPushMatrix();
-    ofSetColor(255);
+    ofNoFill();
+    ofSetLineWidth(5);
+    ofSetColor(0);
     ofTranslate(0.08*width, 0.05*height);
     ofRect(0, 0, 0.65*width, 0.05*height);
     ofTranslate(-0.03*width, 0.08*height);
     ofRect(0, 0, 0.65*width, 0.05*height);
     ofPopMatrix();
     
+    // draw sliders (outline)
+    ofPushMatrix();
+    ofFill();
+    ofSetColor(255);
+    ofTranslate(0.08*width, 0.05*height);
+    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofTranslate(-0.03*width, 0.08*height);
+    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofPopMatrix();
     
     ofPushMatrix();
     ofNoFill();
