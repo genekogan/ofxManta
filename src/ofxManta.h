@@ -35,6 +35,7 @@ public:
     ofParameter<float> & getPad(int row, int column) {return pad[row][column];}
     ofParameter<float> & getSlider(int index) {return slider[index];}
     ofParameter<float> & getButton(int index) {return button[index];}
+    int getSizeSelection();
     
     // led control
     void setLedManual(bool manual);
@@ -45,31 +46,6 @@ public:
     void markAllSliders(LEDState state, int value);
     void markAllButtons(LEDState state);
     
-    // selection
-    void setSelectionView(int selection);
-    void setSelectionView(bool drawAllSelectionLayers) {this->drawAllSelectionLayers = drawAllSelectionLayers;}
-    void addPadToSelection(int row, int col, int selection=0);
-    void addSliderToSelection(int idx, int selection=0);
-    void addButtonToSelection(int idx, int selection=0);
-    void removePadFromSelection(int row, int col, int selection=0);
-    void removeSliderFromSelection(int idx, int selection=0);
-    void removeButtonFromSelection(int idx, int selection=0);
-    void clearPadSelection(int selection);
-    void clearSliderSelection(int selection);
-    void clearButtonSelection(int selection);
-    void clearSelection(int selection);
-    void clearPadSelection();
-    void clearSliderSelection();
-    void clearButtonSelection();
-    void clearSelection();
-
-    bool getPadSelected(int idx, int selection=0);
-    bool getSliderSelected(int idx, int selection=0);
-    bool getButtonSelected(int idx, int selection=0);
-    vector<int> getPadSelection(int selection=0) {return getSelection(padSelection, selection);}
-    vector<int> getSliderSelection(int selection=0) {return getSelection(sliderSelection, selection);}
-    vector<int> getButtonSelection(int selection=0) {return getSelection(buttonSelection, selection);}
-
     // drawing
     int getDrawWidth() {return width;}
     int getDrawHeight() {return height;}
@@ -115,9 +91,6 @@ protected:
     void threadedFunction();
     void sendEventNotifications();
 
-    // selection
-    vector<int> getSelection(map<int, bool> selected[4], int selection);
-    
     // get events from Manta
     void PadEvent(int row, int column, int id, int value);
     void SliderEvent(int id, int value);
@@ -135,21 +108,35 @@ protected:
     ofEvent<ofxMantaEvent> padVelocityEvent;
     ofEvent<ofxMantaEvent> buttonVelocityEvent;
 
+    // selection
+    void addPadToSelection(int row, int col);
+    void addSliderToSelection(int idx);
+    void addButtonToSelection(int idx);
+    void removePadFromSelection(int row, int col);
+    void removeSliderFromSelection(int idx);
+    void removeButtonFromSelection(int idx);
+    void clearPadSelection();
+    void clearSliderSelection();
+    void clearButtonSelection();
+    void clearSelection();
+    bool getPadSelected(int idx);
+    bool getSliderSelected(int idx);
+    bool getButtonSelected(int idx);
+    vector<int> getPadSelection() {return getSelection(padSelection);}
+    vector<int> getSliderSelection() {return getSelection(sliderSelection);}
+    vector<int> getButtonSelection() {return getSelection(buttonSelection);}
+
     // LED + Colors
     ofColor ledColors[2];
-    ofColor selectionColors[4];
-
     LEDState padLedState[6][8];
     LEDState sliderLedState[2];
     LEDState buttonLedState[4];
     
     // selection
-    map<int, bool> padSelection[4];
-    map<int, bool> sliderSelection[4];
-    map<int, bool> buttonSelection[4];
-
-    int numSelectionSets;
-    int viewSelection;
+    vector<int> getSelection(map<int, bool> & selected);
+    map<int, bool> padSelection;
+    map<int, bool> sliderSelection;
+    map<int, bool> buttonSelection;
 
     // internal
     ofParameter<float> pad[6][8];
@@ -160,8 +147,6 @@ protected:
     ofFbo fbo;
     bool animated, toRedrawPads, toRedrawSliders, toRedrawButtons;
     bool padsToRedraw[48];
-    bool drawAllSelectionLayers;
-    
     float padMult, sliderMult, buttonMult;
 };
 

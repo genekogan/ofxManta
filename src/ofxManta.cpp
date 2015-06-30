@@ -36,15 +36,9 @@ ofxManta::ofxManta() : Manta()
     height = width * 310.0 / 400.0;
     redraw();
     animated = true;
-    numSelectionSets = 4;
-    viewSelection = 0;
     
     ledColors[0] = ofColor(255, 255, 0); // amber
     ledColors[1] = ofColor(255, 0, 0);   // red
-    selectionColors[0] = ofColor(255, 125, 0);
-    selectionColors[1] = ofColor(0, 255, 125);
-    selectionColors[2] = ofColor(125, 0, 255);
-    selectionColors[3] = ofColor(125, 255, 0);
 
     fbo.begin();
     ofClear(0, 0);
@@ -245,29 +239,11 @@ void ofxManta::drawPad(int row, int col)
         ofNoFill();
         ofCircle(0, 0, width / 20.0);
     }
-    
-    // draw border if selected
-    if (drawAllSelectionLayers)
+    if (padSelection[col + 8 * row])
     {
-        for (int s=0; s<numSelectionSets; s++)
-        {
-            if (padSelection[s][col+8*row])
-            {
-                float srad = ofMap(s, 0, numSelectionSets, width / 20.0, 0.5 * width / 20.0);
-                ofSetColor(selectionColors[s]);
-                ofNoFill();
-                ofCircle(0, 0, srad);
-            }
-        }
-    }
-    else
-    {
-        if (padSelection[viewSelection][col + 8 * row])
-        {
-            ofSetColor(selectionColors[viewSelection]);
-            ofNoFill();
-            ofCircle(0, 0, width / 20.0);
-        }
+        ofSetColor(0, 255, 0);
+        ofNoFill();
+        ofCircle(0, 0, width / 20.0);
     }
 
     ofPopMatrix();
@@ -331,9 +307,9 @@ void ofxManta::drawButtons()
         ofSetColor(ledColors[0]);
         ofCircle(0, 0, 0.02*width);
     }
-    else if (buttonSelection[viewSelection][0])
+    if (buttonSelection[0])
     {
-        ofSetColor(selectionColors[viewSelection]);
+        ofSetColor(0, 255, 0);
         ofCircle(0, 0, 0.02*width);
     }
     
@@ -348,9 +324,9 @@ void ofxManta::drawButtons()
         ofSetColor(ledColors[0]);
         ofCircle(0, 0, 0.02*width);
     }
-    else if (buttonSelection[viewSelection][1])
+    if (buttonSelection[1])
     {
-        ofSetColor(selectionColors[viewSelection]);
+        ofSetColor(0, 255, 0);
         ofCircle(0, 0, 0.02*width);
     }
     
@@ -365,9 +341,9 @@ void ofxManta::drawButtons()
         ofSetColor(ledColors[0]);
         ofCircle(0, 0, 0.02*width);
     }
-    else if (buttonSelection[viewSelection][2])
+    if (buttonSelection[2])
     {
-        ofSetColor(selectionColors[viewSelection]);
+        ofSetColor(0, 255, 0);
         ofCircle(0, 0, 0.02*width);
     }
     
@@ -381,9 +357,9 @@ void ofxManta::drawButtons()
         ofSetColor(ledColors[0]);
         ofCircle(0, 0, 0.02*width);
     }
-    else if (buttonSelection[viewSelection][3])
+    if (buttonSelection[3])
     {
-        ofSetColor(selectionColors[viewSelection]);
+        ofSetColor(0, 255, 0);
         ofCircle(0, 0, 0.02*width);
     }
     
@@ -449,11 +425,12 @@ void ofxManta::drawSliders()
         ofSetColor(ledColors[0]);
         ofRect(0, 0, 0.65*width, 0.05*height);
     }
-    else if (sliderSelection[viewSelection][0])
+    if (sliderSelection[0])
     {
-        ofSetColor(selectionColors[viewSelection]);
+        ofSetColor(0, 255, 0);
         ofRect(0, 0, 0.65*width, 0.05*height);
     }
+    
     ofTranslate(-0.03*width, 0.08*height);
     if (sliderLedState[1] == Red)
     {
@@ -465,9 +442,9 @@ void ofxManta::drawSliders()
         ofSetColor(ledColors[0]);
         ofRect(0, 0, 0.65*width, 0.05*height);
     }
-    else if (sliderSelection[viewSelection][1])
+    if (sliderSelection[1])
     {
-        ofSetColor(selectionColors[viewSelection]);
+        ofSetColor(0, 255, 0);
         ofRect(0, 0, 0.65*width, 0.05*height);
     }
     ofFill();
@@ -486,154 +463,6 @@ void ofxManta::drawSliders()
     }
     
     ofPopStyle();
-}
-
-void ofxManta::setSelectionView(int selection)
-{
-    if (selection >= numSelectionSets || selection==viewSelection)  return;
-    viewSelection = selection;
-    for (int i=0; i<48; i++) {
-        padsToRedraw[i] = true;
-    }
-    toRedrawPads = true;
-    toRedrawSliders = true;
-    redrawComponents();
-}
-
-void ofxManta::clearPadSelection(int selection)
-{
-    for (int i=0; i<48; i++)
-    {
-        padSelection[selection][i] = false;
-        padsToRedraw[i] = true;
-    }
-    toRedrawPads = true;
-}
-
-void ofxManta::clearPadSelection()
-{
-    for (int s=0; s<numSelectionSets; s++) {
-        clearPadSelection(s);
-    }
-}
-
-void ofxManta::clearSliderSelection(int selection)
-{
-    for (int i=0; i<2; i++) {
-        sliderSelection[selection][i] = false;
-    }
-    toRedrawSliders = true;
-}
-
-void ofxManta::clearSliderSelection()
-{
-    for (int s=0; s<numSelectionSets; s++) {
-        clearSliderSelection(s);
-    }
-}
-
-void ofxManta::clearButtonSelection(int selection)
-{
-    for (int i=0; i<4; i++) {
-        buttonSelection[selection][i] = false;
-    }
-    toRedrawButtons = true;
-}
-
-void ofxManta::clearButtonSelection()
-{
-    for (int s=0; s<numSelectionSets; s++) {
-        clearButtonSelection(s);
-    }
-}
-
-void ofxManta::clearSelection(int selection)
-{
-    clearPadSelection(selection);
-    clearSliderSelection(selection);
-    clearButtonSelection(selection);
-}
-
-void ofxManta::clearSelection()
-{
-    clearPadSelection();
-    clearSliderSelection();
-    clearButtonSelection();
-}
-
-void ofxManta::addPadToSelection(int row, int col, int selection)
-{
-    if (selection >= numSelectionSets)  return;
-    int idx = col + 8 * row;
-    padSelection[selection][idx] = true;
-    padsToRedraw[idx] = true;
-    toRedrawPads = true;
-}
-
-void ofxManta::addSliderToSelection(int idx, int selection)
-{
-    if (selection >= numSelectionSets)  return;
-    sliderSelection[selection][idx] = true;
-    toRedrawSliders = true;
-}
-
-void ofxManta::addButtonToSelection(int idx, int selection)
-{
-    if (selection >= numSelectionSets)  return;
-    buttonSelection[selection][idx] = true;
-    toRedrawButtons = true;
-}
-
-void ofxManta::removePadFromSelection(int row, int col, int selection)
-{
-    if (selection >= numSelectionSets)  return;
-    int idx = col + 8 * row;
-    padSelection[selection][idx] = false;
-    padsToRedraw[idx] = true;
-    toRedrawPads = true;
-}
-
-void ofxManta::removeSliderFromSelection(int idx, int selection)
-{
-    if (selection >= numSelectionSets)  return;
-    sliderSelection[selection][idx] = false;
-    toRedrawSliders = true;
-}
-
-void ofxManta::removeButtonFromSelection(int idx, int selection)
-{
-    if (selection >= numSelectionSets)  return;
-    buttonSelection[selection][idx] = false;
-    toRedrawButtons = true;
-}
-
-bool ofxManta::getPadSelected(int idx, int selection)
-{
-    return padSelection[selection][idx];
-}
-
-bool ofxManta::getSliderSelected(int idx, int selection)
-{
-    return sliderSelection[selection][idx];
-}
-
-bool ofxManta::getButtonSelected(int idx, int selection)
-{
-    return buttonSelection[selection][idx];
-}
-
-vector<int> ofxManta::getSelection(map<int, bool> selected[4], int selection)
-{
-    vector<int> idx;
-    map<int, bool>::iterator it = selected[selection].begin();
-    while (it != selected[selection].end())
-    {
-        if (selected[selection][it->first]) {
-            idx.push_back(it->first);
-        }
-        ++it;
-    }
-    return idx;
 }
 
 void ofxManta::threadedFunction()
@@ -733,6 +562,113 @@ void ofxManta::markAllButtons(LEDState state)
     for (int i=0; i<4; i++) {
         setButtonLedState(i, state);
     }
+}
+
+void ofxManta::addPadToSelection(int row, int col)
+{
+    int idx = col + 8 * row;
+    padSelection[idx] = true;
+    padsToRedraw[idx] = true;
+    toRedrawPads = true;
+}
+
+void ofxManta::addSliderToSelection(int idx)
+{
+    sliderSelection[idx] = true;
+    toRedrawSliders = true;
+}
+
+void ofxManta::addButtonToSelection(int idx)
+{
+    buttonSelection[idx] = true;
+    toRedrawButtons = true;
+}
+
+void ofxManta::removePadFromSelection(int row, int col)
+{
+    int idx = col + 8 * row;
+    padSelection[idx] = false;
+    padsToRedraw[idx] = true;
+    toRedrawPads = true;
+}
+
+void ofxManta::removeSliderFromSelection(int idx)
+{
+    sliderSelection[idx] = false;
+    toRedrawSliders = true;
+}
+
+void ofxManta::removeButtonFromSelection(int idx)
+{
+    buttonSelection[idx] = false;
+    toRedrawButtons = true;
+}
+
+void ofxManta::clearPadSelection()
+{
+    for (int i=0; i<48; i++)
+    {
+        padSelection[i] = false;
+        padsToRedraw[i] = true;
+    }
+    toRedrawPads = true;
+}
+
+void ofxManta::clearSliderSelection()
+{
+    for (int i=0; i<2; i++) {
+        sliderSelection[i] = false;
+    }
+    toRedrawSliders = true;
+}
+
+void ofxManta::clearButtonSelection()
+{
+    for (int i=0; i<4; i++) {
+        buttonSelection[i] = false;
+    }
+    toRedrawButtons = true;
+}
+
+void ofxManta::clearSelection()
+{
+    clearPadSelection();
+    clearSliderSelection();
+    clearButtonSelection();
+}
+
+bool ofxManta::getPadSelected(int idx)
+{
+    return padSelection[idx];
+}
+
+bool ofxManta::getSliderSelected(int idx)
+{
+    return sliderSelection[idx];
+}
+
+bool ofxManta::getButtonSelected(int idx)
+{
+    return buttonSelection[idx];
+}
+
+vector<int> ofxManta::getSelection(map<int, bool> & selected)
+{
+    vector<int> idx;
+    map<int, bool>::iterator it = selected.begin();
+    while (it != selected.end())
+    {
+        if (selected[it->first]) {
+            idx.push_back(it->first);
+        }
+        ++it;
+    }
+    return idx;
+}
+
+int ofxManta::getSizeSelection()
+{
+    return getPadSelection().size() + getSliderSelection().size() + getButtonSelection().size();
 }
 
 void ofxManta::PadEvent(int row, int column, int id, int value)
