@@ -46,6 +46,11 @@ public:
     void markAllSliders(LEDState state, int value);
     void markAllButtons(LEDState state);
     
+    // color control
+    void setPadColor(int row, int column, ofColor color);
+    void setSliderColor(int index, ofColor color);
+    void setButtonColor(int index, ofColor color);
+    
     // drawing
     int getDrawWidth() {return width;}
     int getDrawHeight() {return height;}
@@ -131,6 +136,9 @@ protected:
     LEDState padLedState[6][8];
     LEDState sliderLedState[2];
     LEDState buttonLedState[4];
+    ofColor padColor[6][8];
+    ofColor sliderColor[2];
+    ofColor buttonColor[4];
     
     // selection
     vector<int> getSelection(map<int, bool> & selected);

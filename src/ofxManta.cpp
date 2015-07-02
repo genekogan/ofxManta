@@ -13,13 +13,16 @@ ofxManta::ofxManta() : Manta()
     for (int r=0; r<6; r++) {
         for (int c=0; c<8; c++) {
             pad[r][c].set("pad("+ofToString(r+1)+","+ofToString(c+1)+")", 0, 0, 1);
+            padColor[r][c] = ofColor::white;
         }
     }
     for (int i=0; i<2; i++) {
         slider[i].set("slider("+ofToString(i+1)+")", 0, 0, 1);
+        sliderColor[i] = ofColor::white;
     }
     for (int i=0; i<4; i++) {
         button[i].set("button("+ofToString(i+1)+")", 0, 0, 1);
+        buttonColor[i] = ofColor::white;
     }
     
     eventTypeLookup[PAD] = padEvent;
@@ -239,6 +242,12 @@ void ofxManta::drawPad(int row, int col)
         ofNoFill();
         ofCircle(0, 0, width / 20.0);
     }
+    if (padColor[row][col] != ofColor::white)
+    {
+        ofSetColor(padColor[row][col]);
+        ofNoFill();
+        ofCircle(0, 0, width / 20.0);
+    }
     if (padSelection[col + 8 * row])
     {
         ofSetColor(0, 255, 0);
@@ -307,6 +316,11 @@ void ofxManta::drawButtons()
         ofSetColor(ledColors[0]);
         ofCircle(0, 0, 0.02*width);
     }
+    if (buttonColor[0] != ofColor::white)
+    {
+        ofSetColor(buttonColor[0]);
+        ofCircle(0, 0, 0.02*width);
+    }
     if (buttonSelection[0])
     {
         ofSetColor(0, 255, 0);
@@ -322,6 +336,11 @@ void ofxManta::drawButtons()
     else if (buttonLedState[1] == Amber)
     {
         ofSetColor(ledColors[0]);
+        ofCircle(0, 0, 0.02*width);
+    }
+    if (buttonColor[1] != ofColor::white)
+    {
+        ofSetColor(buttonColor[1]);
         ofCircle(0, 0, 0.02*width);
     }
     if (buttonSelection[1])
@@ -341,6 +360,11 @@ void ofxManta::drawButtons()
         ofSetColor(ledColors[0]);
         ofCircle(0, 0, 0.02*width);
     }
+    if (buttonColor[2] != ofColor::white)
+    {
+        ofSetColor(buttonColor[2]);
+        ofCircle(0, 0, 0.02*width);
+    }
     if (buttonSelection[2])
     {
         ofSetColor(0, 255, 0);
@@ -355,6 +379,11 @@ void ofxManta::drawButtons()
     else if (buttonLedState[3] == Amber)
     {
         ofSetColor(ledColors[0]);
+        ofCircle(0, 0, 0.02*width);
+    }
+    if (buttonColor[3] != ofColor::white)
+    {
+        ofSetColor(buttonColor[3]);
         ofCircle(0, 0, 0.02*width);
     }
     if (buttonSelection[3])
@@ -425,6 +454,11 @@ void ofxManta::drawSliders()
         ofSetColor(ledColors[0]);
         ofRect(0, 0, 0.65*width, 0.05*height);
     }
+    if (sliderColor[0] != ofColor::white)
+    {
+        ofSetColor(sliderColor[0]);
+        ofRect(0, 0, 0.65*width, 0.05*height);
+    }
     if (sliderSelection[0])
     {
         ofSetColor(0, 255, 0);
@@ -440,6 +474,11 @@ void ofxManta::drawSliders()
     else if (sliderLedState[1] == Amber)
     {
         ofSetColor(ledColors[0]);
+        ofRect(0, 0, 0.65*width, 0.05*height);
+    }
+    if (sliderColor[1] != ofColor::white)
+    {
+        ofSetColor(sliderColor[1]);
         ofRect(0, 0, 0.65*width, 0.05*height);
     }
     if (sliderSelection[1])
@@ -562,6 +601,21 @@ void ofxManta::markAllButtons(LEDState state)
     for (int i=0; i<4; i++) {
         setButtonLedState(i, state);
     }
+}
+
+void ofxManta::setPadColor(int row, int column, ofColor color)
+{
+    padColor[row][column] = color;
+}
+
+void ofxManta::setSliderColor(int index, ofColor color)
+{
+    sliderColor[index] = color;
+}
+
+void ofxManta::setButtonColor(int index, ofColor color)
+{
+    buttonColor[index] = color;
 }
 
 void ofxManta::addPadToSelection(int row, int col)
