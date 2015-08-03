@@ -39,6 +39,7 @@ ofxManta::ofxManta() : Manta()
     height = width * 310.0 / 400.0;
     redraw();
     animated = true;
+    lastReleasedTime = ofGetElapsedTimef();
     
     ledColors[0] = ofColor(255, 255, 0); // amber
     ledColors[1] = ofColor(255, 0, 0);   // red
@@ -130,6 +131,7 @@ void ofxManta::redraw()
     
     ofPushStyle();
     ofPushMatrix();
+    ofEnableAlphaBlending();
     
     ofSetColor(0);
     ofRect(0, 0, width, height);
@@ -255,6 +257,13 @@ void ofxManta::drawPad(int row, int col)
         ofCircle(0, 0, width / 20.0);
     }
 
+    // if pad is a toggle
+    if (padToggle[col + 8 * row])
+    {
+        ofSetColor(0);
+        ofDrawBitmapString("T", 0, 4);
+    }
+    
     ofPopMatrix();
 }
 
@@ -560,6 +569,7 @@ void ofxManta::setPadLedState(int row, int column, LEDState state)
     padLedState[row][column] = state;
     padsToRedraw[column + 8 * row] = true;
     toRedrawPads = true;
+    setLedManual(false);
 }
 
 void ofxManta::setSliderLedState(int index, LEDState state, int value)
@@ -725,12 +735,60 @@ int ofxManta::getSizeSelection()
     return getPadSelection().size() + getSliderSelection().size() + getButtonSelection().size();
 }
 
+void ofxManta::setPadFreezeEnabled(bool toFreezePads)
+{
+    this->toFreezePads = toFreezePads;
+    setButtonLedState(1, toFreezePads ? Manta::Red : Manta::Off);
+    setButtonColor(1, toFreezePads ? ofColor::blue : ofColor::white);
+}
+
+void ofxManta::enablePadToggle(int row, int column, bool toggle)
+{
+    padToggle[column + 8 * row] = toggle;
+    padsToRedraw[column + 8 * row] = true;
+    toRedrawPads = true;
+    if (toggle) {
+        pad[row][column] = 0;
+    }
+}
+
+void ofxManta::freezePads()
+{
+    for (int r = 0; r < 6; r++)
+    {
+        for (int c = 0; c < 8; c++)
+        {
+            if (getPad(r, c) > 0)
+            {
+                padFrozen[c + 8 * r] = true;
+                padReleased[c + 8 * r] = false;
+            }
+        }
+    }
+}
+
+void ofxManta::clearPadStates()
+{
+    for (int i = 0; i < 48; i++)
+    {
+        padFrozen[i] = false;
+        padReleased[i] = true;
+        enablePadToggle(floor(i / 8), i % 8, false);
+    }
+}
+
 void ofxManta::PadEvent(int row, int column, int id, int value)
 {
-    events.push_back(new MantaEvent(PAD, new ofxMantaEvent(row, column, id, value)));
-    padsToRedraw[column + 8 * row] = (value != pad[row][column]);
-    pad[row][column] = value; //padMult * value;
-    toRedrawPads = animated;
+    if (!padFrozen[id] && !padToggle[id])
+    {
+        events.push_back(new MantaEvent(PAD, new ofxMantaEvent(row, column, id, value)));
+        padsToRedraw[column + 8 * row] = (value != pad[row][column]);
+        pad[row][column] = padMult * value;
+        toRedrawPads = animated;
+    }
+    else if (padReleased[id]) {
+        padFrozen[id] = false;
+    }
 }
 
 void ofxManta::SliderEvent(int id, int value)
@@ -751,11 +809,25 @@ void ofxManta::ButtonEvent(int id, int value)
 
 void ofxManta::PadVelocityEvent(int row, int column, int id, int value)
 {
+    if (padToggle[column + 8 * row] && padReleased[column + 8 * row])
+    {
+        float newValue = 1.0 - pad[row][column];
+        events.push_back(new MantaEvent(PAD, new ofxMantaEvent(row, column, id, newValue)));
+        padsToRedraw[column + 8 * row] = true;
+        pad[row][column] = newValue;
+        toRedrawPads = animated;
+        padReleased[column + 8 * row] = false;
+        setPadLedState(row, column, newValue == 0.0 ? Manta::Off : Manta::Red);
+    }
+    if (value == 0) padReleased[id] = true;
     events.push_back(new MantaEvent(PAD_VELOCITY, new ofxMantaEvent(row, column, id, value)));
 }
 
 void ofxManta::ButtonVelocityEvent(int id, int value)
 {
+    if (toFreezePads && id==1 && value==0) {
+        freezePads();
+    }
     events.push_back(new MantaEvent(BUTTON_VELOCITY, new ofxMantaEvent(NULL, NULL, id, value)));
 }
 

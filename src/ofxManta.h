@@ -95,6 +95,12 @@ protected:
     void update(ofEventArgs &data) {update();}
     void threadedFunction();
     void sendEventNotifications();
+    
+    // freezing
+    void setPadFreezeEnabled(bool toFreezePads);
+    void enablePadToggle(int row, int column, bool toggle);
+    void freezePads();
+    void clearPadStates();
 
     // get events from Manta
     void PadEvent(int row, int column, int id, int value);
@@ -151,10 +157,16 @@ protected:
     ofParameter<float> slider[2];
     ofParameter<float> button[4];
 
+    bool padFrozen[48];
+    bool padReleased[48];
+    bool padToggle[48];
+    bool toFreezePads;
+
     int width, height;
     ofFbo fbo;
     bool animated, toRedrawPads, toRedrawSliders, toRedrawButtons;
     bool padsToRedraw[48];
     float padMult, sliderMult, buttonMult;
+    float lastReleasedTime;
 };
 
