@@ -20,6 +20,10 @@ public:
 class ofxManta : public Manta, public ofThread
 {
 public:
+    int nTimesDraw;
+    
+    
+    
     ofxManta();
     virtual ~ofxManta();
     

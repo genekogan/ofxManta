@@ -108,6 +108,7 @@ void ofxManta::update()
     }
     // try to reconnect
     else if (ofGetFrameNum() % 120 == 0) {
+        ofLog() << "try to reconnect " <<ofGetFrameNum();
         setup();
     }
 }
@@ -127,6 +128,11 @@ void ofxManta::draw(int x, int y, int w)
 
 void ofxManta::redraw()
 {
+    ofLog() << "redraw manta ("<<nTimesDraw<<") at t="<<ofGetElapsedTimeMillis();
+    nTimesDraw++;
+    
+    
+    
     fbo.begin();
     
     ofPushStyle();
@@ -134,7 +140,7 @@ void ofxManta::redraw()
     ofEnableAlphaBlending();
     
     ofSetColor(0);
-    ofRect(0, 0, width, height);
+    ofDrawRectangle(0, 0, width, height);
 
     // draw sliders
     drawSliders();
@@ -218,17 +224,17 @@ void ofxManta::drawPad(int row, int col)
     {
         ofSetColor(0);
         ofNoFill();
-        ofCircle(0, 0, width / 20.0);
+        ofDrawCircle(0, 0, width / 20.0);
     }
 
     ofSetColor(255);
     ofFill();
-    ofCircle(0, 0, width / 20.0);
+    ofDrawCircle(0, 0, width / 20.0);
     
     if (animated)
     {
         ofSetColor(0, 255, 0);
-        ofCircle(0, 0, width * pad[row][col] / (20.0*203.0));
+        ofDrawCircle(0, 0, width * pad[row][col] / (20.0*203.0));
     }
     
     // draw border if led state on
@@ -236,25 +242,25 @@ void ofxManta::drawPad(int row, int col)
     {
         ofSetColor(255, 255, 0);
         ofNoFill();
-        ofCircle(0, 0, width / 20.0);
+        ofDrawCircle(0, 0, width / 20.0);
     }
     else if (padLedState[row][col] == Red)
     {
         ofSetColor(255, 0, 0);
         ofNoFill();
-        ofCircle(0, 0, width / 20.0);
+        ofDrawCircle(0, 0, width / 20.0);
     }
     if (padColor[row][col] != ofColor::white)
     {
         ofSetColor(padColor[row][col]);
         ofNoFill();
-        ofCircle(0, 0, width / 20.0);
+        ofDrawCircle(0, 0, width / 20.0);
     }
     if (padSelection[col + 8 * row])
     {
         ofSetColor(0, 255, 0);
         ofNoFill();
-        ofCircle(0, 0, width / 20.0);
+        ofDrawCircle(0, 0, width / 20.0);
     }
 
     // if pad is a toggle
@@ -280,13 +286,13 @@ void ofxManta::drawButtons()
     ofSetColor(0);
     ofTranslate(0, 0.025*height);
     ofTranslate(0.8*width, 0.05*height);
-    ofCircle(0, 0, 0.02*width);
+    ofDrawCircle(0, 0, 0.02*width);
     ofTranslate(0.1*width, 0);
-    ofCircle(0, 0, 0.02*width);
+    ofDrawCircle(0, 0, 0.02*width);
     ofTranslate(-0.05*width, 0.08*height);
-    ofCircle(0, 0, 0.02*width);
+    ofDrawCircle(0, 0, 0.02*width);
     ofTranslate(0.1*width, 0);
-    ofCircle(0, 0, 0.02*width);
+    ofDrawCircle(0, 0, 0.02*width);
     ofPopMatrix();
 
     // draw buttons (outline)
@@ -297,13 +303,13 @@ void ofxManta::drawButtons()
     ofSetColor(255);
     ofTranslate(0, 0.025*height);
     ofTranslate(0.8*width, 0.05*height);
-    ofCircle(0, 0, 0.02*width);
+    ofDrawCircle(0, 0, 0.02*width);
     ofTranslate(0.1*width, 0);
-    ofCircle(0, 0, 0.02*width);
+    ofDrawCircle(0, 0, 0.02*width);
     ofTranslate(-0.05*width, 0.08*height);
-    ofCircle(0, 0, 0.02*width);
+    ofDrawCircle(0, 0, 0.02*width);
     ofTranslate(0.1*width, 0);
-    ofCircle(0, 0, 0.02*width);
+    ofDrawCircle(0, 0, 0.02*width);
     ofPopMatrix();
     
     // draw button values
@@ -318,87 +324,87 @@ void ofxManta::drawButtons()
     if (buttonLedState[0] == Red)
     {
         ofSetColor(ledColors[1]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     else if (buttonLedState[0] == Amber)
     {
         ofSetColor(ledColors[0]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     if (buttonColor[0] != ofColor::white)
     {
         ofSetColor(buttonColor[0]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     if (buttonSelection[0])
     {
         ofSetColor(0, 255, 0);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     
     ofTranslate(0.1*width, 0);
     if (buttonLedState[1] == Red)
     {
         ofSetColor(ledColors[1]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     else if (buttonLedState[1] == Amber)
     {
         ofSetColor(ledColors[0]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     if (buttonColor[1] != ofColor::white)
     {
         ofSetColor(buttonColor[1]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     if (buttonSelection[1])
     {
         ofSetColor(0, 255, 0);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     
     ofTranslate(-0.05*width, 0.08*height);
     if (buttonLedState[2] == Red)
     {
         ofSetColor(ledColors[1]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     else if (buttonLedState[2] == Amber)
     {
         ofSetColor(ledColors[0]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     if (buttonColor[2] != ofColor::white)
     {
         ofSetColor(buttonColor[2]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     if (buttonSelection[2])
     {
         ofSetColor(0, 255, 0);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     
     ofTranslate(0.1*width, 0);
     if (buttonLedState[3] == Red) {
         ofSetColor(ledColors[1]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     else if (buttonLedState[3] == Amber)
     {
         ofSetColor(ledColors[0]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     if (buttonColor[3] != ofColor::white)
     {
         ofSetColor(buttonColor[3]);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     if (buttonSelection[3])
     {
         ofSetColor(0, 255, 0);
-        ofCircle(0, 0, 0.02*width);
+        ofDrawCircle(0, 0, 0.02*width);
     }
     
     ofFill();
@@ -411,13 +417,13 @@ void ofxManta::drawButtons()
         ofSetColor(0, 255, 0);
         ofTranslate(0, 0.025*height);
         ofTranslate(0.8*width, 0.05*height);
-        ofCircle(0, 0, 0.02*width*(button[0]>0.0));
+        ofDrawCircle(0, 0, 0.02*width*(button[0]>0.0));
         ofTranslate(0.1*width, 0);
-        ofCircle(0, 0, 0.02*width*(button[1]>0.0));
+        ofDrawCircle(0, 0, 0.02*width*(button[1]>0.0));
         ofTranslate(-0.05*width, 0.08*height);
-        ofCircle(0, 0, 0.02*width*(button[2]>0.0));
+        ofDrawCircle(0, 0, 0.02*width*(button[2]>0.0));
         ofTranslate(0.1*width, 0);
-        ofCircle(0, 0, 0.02*width*(button[3]>0.0));
+        ofDrawCircle(0, 0, 0.02*width*(button[3]>0.0));
     }
     
     ofPopStyle();
@@ -434,9 +440,9 @@ void ofxManta::drawSliders()
     ofSetLineWidth(5);
     ofSetColor(0);
     ofTranslate(0.08*width, 0.05*height);
-    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     ofTranslate(-0.03*width, 0.08*height);
-    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     ofPopMatrix();
     
     // draw sliders (outline)
@@ -444,9 +450,9 @@ void ofxManta::drawSliders()
     ofFill();
     ofSetColor(255);
     ofTranslate(0.08*width, 0.05*height);
-    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     ofTranslate(-0.03*width, 0.08*height);
-    ofRect(0, 0, 0.65*width, 0.05*height);
+    ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     ofPopMatrix();
     
     ofPushMatrix();
@@ -456,44 +462,44 @@ void ofxManta::drawSliders()
     if (sliderLedState[0] == Red)
     {
         ofSetColor(ledColors[1]);
-        ofRect(0, 0, 0.65*width, 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     }
     else if (sliderLedState[0] == Amber)
     {
         ofSetColor(ledColors[0]);
-        ofRect(0, 0, 0.65*width, 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     }
     if (sliderColor[0] != ofColor::white)
     {
         ofSetColor(sliderColor[0]);
-        ofRect(0, 0, 0.65*width, 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     }
     if (sliderSelection[0])
     {
         ofSetColor(0, 255, 0);
-        ofRect(0, 0, 0.65*width, 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     }
     
     ofTranslate(-0.03*width, 0.08*height);
     if (sliderLedState[1] == Red)
     {
         ofSetColor(ledColors[1]);
-        ofRect(0, 0, 0.65*width, 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     }
     else if (sliderLedState[1] == Amber)
     {
         ofSetColor(ledColors[0]);
-        ofRect(0, 0, 0.65*width, 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     }
     if (sliderColor[1] != ofColor::white)
     {
         ofSetColor(sliderColor[1]);
-        ofRect(0, 0, 0.65*width, 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     }
     if (sliderSelection[1])
     {
         ofSetColor(0, 255, 0);
-        ofRect(0, 0, 0.65*width, 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width, 0.05*height);
     }
     ofFill();
     ofPopMatrix();
@@ -504,9 +510,9 @@ void ofxManta::drawSliders()
         ofPushMatrix();
         ofSetColor(0, 255, 0);
         ofTranslate(0.08*width, 0.05*height);
-        ofRect(0, 0, 0.65*width*slider[0], 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width*slider[0], 0.05*height);
         ofTranslate(-0.03*width, 0.08*height);
-        ofRect(0, 0, 0.65*width*slider[1], 0.05*height);
+        ofDrawRectangle(0, 0, 0.65*width*slider[1], 0.05*height);
         ofPopMatrix();
     }
     
@@ -521,6 +527,7 @@ void ofxManta::threadedFunction()
         {
             try {
                 HandleEvents();
+                sleep(1);
             }
             catch(runtime_error &e)
             {
